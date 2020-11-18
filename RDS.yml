@@ -1,0 +1,48 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Provision RDS
+
+Resources:
+  RDS:                                                                        #(E)
+    Type: AWS::RDS::DBInstance                                                        #(F)
+    Properties:
+      DBInstanceIdentifier: aws-mysql-raisetechtask9
+      Engine: mysql
+      EngineVersion: 8.0.20
+      StorageType: gp2
+      MultiAZ: false
+      MasterUsername: admin
+      MasterUserPassword: "_"
+      Port: 3306
+      DBInstanceClass: db.t2.micro
+      AllocatedStorage: '20'
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      MonitoringInterval: 0
+      DBName: AwstestDB
+      VPCSecurityGroups:
+          - !Ref RDSSecurityGroup
+      Tags:
+          - Key: Name
+            Value: RDS-raisetechtask9
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: RDSraisetechtask9subnet
+      DBSubnetGroupDescription: "DSraisetechtask9"
+      SubnetIds:
+        - { "Fn::ImportValue": "raisetechtask9-private-subnet-1a" }
+        - { "Fn::ImportValue": "raisetechtask9-private-subnet-1c" }
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: RDSraisetechtask9
+      VpcId: { "Fn::ImportValue": "raisetechtask9-vpc" }
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: rds-sg-raisetechtask9
